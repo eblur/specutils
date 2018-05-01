@@ -222,3 +222,28 @@ class Spectrum1D(OneDSpectrumMixin, NDDataRef):
             shape is the result of broadcasting the input shapes.
         """
         pass
+
+    def recast_flux_values(self, spectral_axis_unit):
+        """
+        Change the `flux` array to correspond to a different spectral_axis_unit
+        For example, if the spectrum was initiated with spectral_axis_unit='angstrom'::
+
+        `Spectrum1D.recast_flux(u.eV)`
+
+        will reverse the order of `Spectrum1D.flux`.
+
+        Parameters
+        ----------
+        spectral_axis_unit : str or `astropy.units.Unit`
+            The new unit for the spectral_axis. Must be parseable by `astropy.units.Unit`.
+        """
+        if isinstance(spectral_axis_unit, str):
+            new_unit = u.Unit(spectral_axis_unit)
+        else:
+            new_unit = spectral_axis_unit
+
+        # get the new values
+        new_axis = self.spectral_axis.to(new_unit, equivalencies=u.spectral())
+
+        # clobber the old values
+        self.spectral_axis = new_axis
